@@ -1,52 +1,260 @@
-/* frontend/src/App.css */
+/* Import the ultra-modern 'Outfit' font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* --- NUKE THE DEFAULT REACT WHITE SPACE --- */
+#root {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:root {
+  --font-main: 'Outfit', sans-serif;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --text-main: #0f172a;
+  --text-sub: #64748b;
+  --accent-gradient: linear-gradient(135deg, #0ea5e9, #14b8a6); /* Vibrant Cyan to Teal */
+  --map-filter: none;
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode {
+  --glass-bg: rgba(15, 23, 42, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --accent-gradient: linear-gradient(135deg, #38bdf8, #2dd4bf);
+  --map-filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(110%);
+  --input-bg: rgba(0, 0, 0, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevents the whole page from bouncing on mobile */
+  overflow: hidden; 
+  background-color: #000;
+  color: var(--text-main);
+  font-family: var(--font-main);
 }
 
 .app-layout {
-  display: flex;
-  height: 100vh;
+  position: relative;
   width: 100vw;
-  font-family: sans-serif;
-  flex-direction: row;
+  height: 100vh;
 }
 
-.sidebar {
-  width: 340px;
-  padding: 24px;
-  background-color: #f8f9fa;
+/* --- THE FULL SCREEN MAP --- */
+.map-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+.leaflet-layer {
+  filter: var(--map-filter);
+  transition: filter 0.5s ease;
+}
+
+/* --- THE FLOATING GLASS PANEL --- */
+.floating-panel {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 380px;
+  max-height: calc(100vh - 48px);
   z-index: 1000;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: 0 24px 48px var(--shadow-color);
   display: flex;
   flex-direction: column;
-  height: 100vh;
   box-sizing: border-box;
+  animation: floatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.map-area {
-  flex: 1;
-  position: relative;
-  height: 100vh;
+/* Internal padding for the panel */
+.panel-header {
+  padding: 32px 32px 16px 32px;
+}
+.panel-scroll-area {
+  padding: 0 32px 32px 32px;
+  overflow-y: auto;
 }
 
-/* Mobile Responsive Override */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brand-title {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.theme-toggle {
+  background: rgba(128,128,128,0.1);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  transition: all 0.3s ease;
+}
+.theme-toggle:hover {
+  background: rgba(128,128,128,0.2);
+  transform: scale(1.05);
+}
+
+/* --- SLEEK INPUTS --- */
+.input-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--text-main);
+  font-size: 12px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.modern-input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  font-size: 15px;
+  color: var(--text-main);
+  box-sizing: border-box;
+  background: var(--input-bg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-main);
+  margin-bottom: 20px;
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: #2dd4bf;
+  box-shadow: 0 0 20px rgba(45, 212, 191, 0.2);
+  transform: translateY(-2px);
+}
+
+/* --- ANIMATED GRADIENT BUTTON --- */
+.primary-btn {
+  width: 100%;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  padding: 18px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  font-family: var(--font-main);
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3);
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(20, 184, 166, 0.4);
+}
+
+/* --- FLOATING STORY CARDS --- */
+.story-card {
+  background: var(--input-bg);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid #2dd4bf;
+  box-shadow: 0 8px 16px var(--shadow-color);
+  animation: slideUpSpring 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
+  transition: transform 0.3s ease;
+}
+
+.story-card:hover {
+  transform: translateX(6px) scale(1.02);
+}
+
+.story-card-title {
+  font-weight: 700; 
+  font-size: 16px; 
+  margin-bottom: 8px; 
+  color: var(--text-main);
+}
+
+.story-card-text {
+  font-size: 14px; 
+  color: var(--text-sub); 
+  line-height: 1.6;
+}
+
+/* --- CUSTOM ANIMATIONS --- */
+@keyframes floatIn {
+  0% { opacity: 0; transform: translateX(-40px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes slideUpSpring {
+  0% { opacity: 0; transform: translateY(40px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeDraw {
+  from { opacity: 0; transform: translateX(-15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.directions-list li {
+  animation: fadeDraw 0.5s ease-out backwards;
+}
+
+/* Custom Invisible Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+
+/* Mobile View: Snaps to a bottom sheet */
+.mobile-handle { display: none; }
 @media (max-width: 768px) {
-  .app-layout {
-    flex-direction: column-reverse; /* Puts the sidebar on bottom, map on top */
+  .floating-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 65vh;
+    border-radius: 32px 32px 0 0;
+    border: none;
+    border-top: 1px solid var(--glass-border);
+    animation: slideUpSpring 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
-  .sidebar {
-    width: 100%;
-    height: 55vh; /* Sidebar takes the bottom 55% of the screen */
-    padding: 16px;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.15); /* Shadow points up */
-    border-radius: 20px 20px 0 0; /* Smooth rounded corners like a mobile app */
-  }
-
-  .map-area {
-    width: 100%;
-    height: 45vh; /* Map takes the top 45% of the screen */
+  .mobile-handle { 
+    display: block; 
+    width: 48px; 
+    height: 6px; 
+    background: var(--glass-border); 
+    border-radius: 10px; 
+    margin: 0 auto 24px auto; 
   }
 }
