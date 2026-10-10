@@ -7,22 +7,51 @@ export default function App() {
   const [route, setRoute] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  // NEW: State to hold our distance and time data
   const [tripDetails, setTripDetails] = useState(null); 
+
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) {
+      setError("Your browser does not support geolocation.");
+      return;
+    }
+    
+    setStartCity("Locating...");
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+          .then(res => res.json())
+          .then(data => {
+            const locationName = data.address.city || data.address.town || data.address.state || "My Location";
+            setStartCity(locationName);
+            setError('');
+          })
+          .catch(() => {
+            setStartCity("");
+            setError("Could not pinpoint your exact city name.");
+          });
+      },
+      (err) => {
+        setStartCity("");
+        setError("Location access denied by user.");
+      }
+    );
+  };
 
   const handleSearch = (e) => {
     e.preventDefault(); 
     setLoading(true);
     setError('');
-    setTripDetails(null); // Clear old trip details on a new search
+    setTripDetails(null);
     
     fetch(`http://localhost:5000/api/route?start=${startCity}&dest=${destCity}`)
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
           setRoute(data.path);
-          // NEW: Save the distance and time from the Python server
           setTripDetails({ distance: data.distance, time: data.time }); 
         } else {
           setError(data.message || "Could not find the route.");
@@ -45,7 +74,14 @@ export default function App() {
         
         <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px', color: '#333' }}>Start City</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <label style={{ fontWeight: '600', color: '#333' }}>Start City</label>
+              <span 
+                onClick={handleGeolocate} 
+                style={{ color: '#005C66', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                📍 Locate Me
+              </span>
+            </div>
             <input 
               type="text" 
               value={startCity}
@@ -92,7 +128,6 @@ export default function App() {
           </button>
         </form>
 
-        {/* NEW: The Trip Summary Card. It only appears if we have data to show. */}
         {tripDetails && (
           <div style={{ marginTop: '24px', padding: '16px', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
             <h3 style={{ margin: '0 0 12px 0', color: '#333', fontSize: '16px' }}>Trip Summary</h3>
