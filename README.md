@@ -1,1 +1,1 @@
-# LocalLens
+LocalLens: Team Cognivex
