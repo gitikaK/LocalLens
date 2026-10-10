@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MapComponent from './MapComponent';
+import './App.css'; // NEW: Imports the responsive styling
 
 export default function App() {
   const [startCity, setStartCity] = useState('');
@@ -66,9 +67,9 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', margin: 0, fontFamily: 'sans-serif' }}>
+    <div className="app-layout">
       
-      <div style={{ width: '340px', padding: '24px', backgroundColor: '#f8f9fa', zIndex: 1000, boxShadow: '2px 0 10px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column' }}>
+      <div className="sidebar">
         <h1 style={{ color: '#005C66', margin: '0 0 24px 0', fontSize: '28px', flexShrink: 0 }}>LocalLens</h1>
         
         <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: '16px', flexShrink: 0 }}>
@@ -126,7 +127,7 @@ export default function App() {
         </div>
       </div>
 
-      <div style={{ flex: 1, position: 'relative' }}>
+      <div className="map-area">
         <MapComponent routeCoordinates={route} scenicStops={scenicStops} />
       </div>
 
