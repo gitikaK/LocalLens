@@ -24,7 +24,6 @@ def get_route():
     time.sleep(1) 
     dest_lon, dest_lat = get_coordinates(dest_city)
     
-    # Catch bad city names
     if not start_lon or not dest_lon:
         return jsonify({"status": "error", "message": "Could not find one of the cities."}), 400
         
@@ -34,17 +33,34 @@ def get_route():
         response = requests.get(osrm_url)
         data = response.json()
         
-        # Catch impossible driving routes (like crossing oceans)
         if data.get('code') != 'Ok':
              return jsonify({"status": "error", "message": "No driving roads found between these locations."}), 400
              
-        coordinates = data['routes'][0]['geometry']['coordinates']
+        route_data = data['routes'][0]
+        coordinates = route_data['geometry']['coordinates']
         leaflet_coords = [[lat, lon] for lon, lat in coordinates]
         
-        return jsonify({"status": "success", "path": leaflet_coords})
+        # --- NEW: Extracting and calculating Distance & Time ---
+        distance_km = round(route_data['distance'] / 1000, 1) # Convert meters to km
+        duration_min = int(route_data['duration'] / 60) # Convert seconds to minutes
+        
+        # Format the time beautifully (e.g., "2 hr 15 min" instead of "135 min")
+        if duration_min >= 60:
+            hours = duration_min // 60
+            mins = duration_min % 60
+            time_str = f"{hours} hr {mins} min"
+        else:
+            time_str = f"{duration_min} min"
+        
+        # Send the new data to React
+        return jsonify({
+            "status": "success", 
+            "path": leaflet_coords,
+            "distance": f"{distance_km} km",
+            "time": time_str
+        })
         
     except Exception as e:
-        # We removed the fallback route. Now it fails honestly.
         return jsonify({"status": "error", "message": "Server error while calculating route."}), 500
 
 if __name__ == '__main__':

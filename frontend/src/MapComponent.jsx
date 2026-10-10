@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Polyline, useMap, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
-// This safely loads the default Leaflet map pins in React
+// Safely loads the default Leaflet map pins
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// The camera animation component from our last step
+// The camera animation component
 function RouteFramer({ coordinates }) {
   const map = useMap();
 
@@ -31,12 +31,12 @@ function RouteFramer({ coordinates }) {
 export default function MapComponent({ routeCoordinates }) {
   const center = [22.1187, 88.0325];
 
-  // We isolate the very first and very last coordinate pairs to place our pins
   const startPoint = routeCoordinates && routeCoordinates.length > 0 ? routeCoordinates[0] : null;
   const endPoint = routeCoordinates && routeCoordinates.length > 0 ? routeCoordinates[routeCoordinates.length - 1] : null;
 
   return (
     <MapContainer center={center} zoom={9} style={{ height: '100%', width: '100%', zIndex: 1 }}>
+      {/* NEW: The Premium CartoDB Positron Theme */}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; OpenStreetMap'
@@ -46,12 +46,10 @@ export default function MapComponent({ routeCoordinates }) {
           <Polyline positions={routeCoordinates} color="#005C66" weight={6} />
           <RouteFramer coordinates={routeCoordinates} />
           
-          {/* Drops the Start pin and adds a click-to-read label */}
           <Marker position={startPoint}>
             <Popup>Start Location</Popup>
           </Marker>
           
-          {/* Drops the Destination pin and adds a click-to-read label */}
           <Marker position={endPoint}>
             <Popup>Destination</Popup>
           </Marker>
