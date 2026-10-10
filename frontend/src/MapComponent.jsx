@@ -1,16 +1,26 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMap, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 
-// This tiny invisible component controls the camera animation
+// This safely loads the default Leaflet map pins in React
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+// The camera animation component from our last step
 function RouteFramer({ coordinates }) {
   const map = useMap();
 
   useEffect(() => {
     if (coordinates && coordinates.length > 0) {
-      // Calculates the boundary box that fits the entire route
       const bounds = L.latLngBounds(coordinates);
-      // The "flyToBounds" method creates the swooping animation
       map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
     }
   }, [coordinates, map]);
@@ -21,8 +31,11 @@ function RouteFramer({ coordinates }) {
 export default function MapComponent({ routeCoordinates }) {
   const center = [22.1187, 88.0325];
 
+  // We isolate the very first and very last coordinate pairs to place our pins
+  const startPoint = routeCoordinates && routeCoordinates.length > 0 ? routeCoordinates[0] : null;
+  const endPoint = routeCoordinates && routeCoordinates.length > 0 ? routeCoordinates[routeCoordinates.length - 1] : null;
+
   return (
-    // Width changed to 100% so it perfectly hugs your new sidebar
     <MapContainer center={center} zoom={9} style={{ height: '100%', width: '100%', zIndex: 1 }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -32,6 +45,16 @@ export default function MapComponent({ routeCoordinates }) {
         <>
           <Polyline positions={routeCoordinates} color="#005C66" weight={6} />
           <RouteFramer coordinates={routeCoordinates} />
+          
+          {/* Drops the Start pin and adds a click-to-read label */}
+          <Marker position={startPoint}>
+            <Popup>Start Location</Popup>
+          </Marker>
+          
+          {/* Drops the Destination pin and adds a click-to-read label */}
+          <Marker position={endPoint}>
+            <Popup>Destination</Popup>
+          </Marker>
         </>
       )}
     </MapContainer>

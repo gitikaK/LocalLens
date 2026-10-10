@@ -6,24 +6,28 @@ export default function App() {
   const [destCity, setDestCity] = useState('');
   const [route, setRoute] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(''); // We added this to track errors silently
 
   const handleSearch = (e) => {
-    e.preventDefault(); // Prevents the page from refreshing when you click submit
+    e.preventDefault(); 
     setLoading(true);
+    setError(''); // Clears any old errors when they try a new search
     
-    // Injecting the user's typed cities into the URL
     fetch(`http://localhost:5000/api/route?start=${startCity}&dest=${destCity}`)
       .then(res => res.json())
       .then(data => {
         if (data.status === "success" || data.status === "fallback") {
           setRoute(data.path);
         } else {
-          alert("Could not find the route. Please try different cities.");
+          // Instead of an alert(), we secretly store the error message here
+          setError("Could not find the route. Please check your spelling.");
+          setRoute([]); // Erases the old blue line from the map
         }
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
+        setError("Server error. Ensure the Python backend is running.");
         setLoading(false);
       });
   };
@@ -31,7 +35,6 @@ export default function App() {
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', margin: 0, fontFamily: 'sans-serif' }}>
       
-      {/* The new left-side control panel */}
       <div style={{ width: '320px', padding: '24px', backgroundColor: '#f8f9fa', zIndex: 1000, boxShadow: '2px 0 10px rgba(0,0,0,0.1)' }}>
         <h1 style={{ color: '#005C66', margin: '0 0 24px 0', fontSize: '28px' }}>LocalLens</h1>
         
@@ -60,6 +63,13 @@ export default function App() {
             />
           </div>
 
+          {/* This is the new Error Banner that only appears if something goes wrong */}
+          {error && (
+            <div style={{ backgroundColor: '#fde8e8', color: '#c81e1e', padding: '10px', borderRadius: '6px', fontSize: '14px', border: '1px solid #f8b4b4', fontWeight: '500' }}>
+              {error}
+            </div>
+          )}
+
           <button 
             type="submit" 
             disabled={loading}
@@ -79,7 +89,6 @@ export default function App() {
         </form>
       </div>
 
-      {/* The map takes up the rest of the screen space */}
       <div style={{ flex: 1, position: 'relative' }}>
         <MapComponent routeCoordinates={route} />
       </div>
